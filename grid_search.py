@@ -42,40 +42,42 @@ if __name__ == "__main__":
     # For the best combination of parameters, compute the test set accuracy.
     #
     # The easiest way is to use `sklearn.model_selection.GridSearchCV`.
-    
+
     min_max = sklearn.preprocessing.MinMaxScaler()
     poly = sklearn.preprocessing.PolynomialFeatures()
     logi = sklearn.linear_model.LogisticRegression(multi_class="multinomial", random_state=args.seed)
-    
-    methods = sklearn.pipeline.Pipeline(steps = [('min_max',min_max),
-                                                 ('poly',poly),
-                                                 ('logi',logi)])
-    
-    params = {'poly__degree':[1,2],
-              'logi__C':[0.01,1,100],
-              'logi__solver':['lbfgs','sag']}
-    
-    grid = sklearn.model_selection.GridSearchCV(methods,params,cv = 5)
-    
 
-    
-    grid.fit(train_data,train_target)
-    
+    methods = sklearn.pipeline.Pipeline(steps=[('min_max', min_max),
+                                               ('poly', poly),
+                                               ('logi', logi)])
+
+    params = {'poly__degree': [1, 2],
+              'logi__C': [0.01, 1, 100],
+              'logi__solver': ['lbfgs', 'sag']}
+
+    grid = sklearn.model_selection.GridSearchCV(methods, params, cv=5)
+
+    grid.fit(train_data, train_target)
+
     params = grid.best_params_
-    
-    C,degree,solver = params['logi__C'],params['poly__degree'],params['logi__solver']
-    
+
+    C, degree, solver = params['logi__C'], params['poly__degree'], params['logi__solver']
+
     min_max = sklearn.preprocessing.MinMaxScaler()
-    poly = sklearn.preprocessing.PolynomialFeatures(degree = degree)
-    logi = sklearn.linear_model.LogisticRegression(multi_class="multinomial", 
+    poly = sklearn.preprocessing.PolynomialFeatures(degree=degree)
+    logi = sklearn.linear_model.LogisticRegression(multi_class="multinomial",
                                                    random_state=args.seed,
-                                                   C = C,solver = solver)
-    
-    methods = sklearn.pipeline.Pipeline(steps = [('min_max',min_max),
-                                                 ('poly',poly),
-                                                 ('logi',logi)])
-                                                 
-    methods.fi
-    
-    test_accuracy = ...
+                                                   C=C, solver=solver)
+
+    train_data = min_max.fit_transform(train_data)
+    train_data = poly.fit_transform(train_data)
+    test_data = min_max.transform(test_data)
+    test_data = poly.transform(test_data)
+
+    model = logi.fit(train_data,train_target)
+    preds = model.predict(test_data)
+
+
+
+    test_accuracy = np.mean(test_target == preds)
     print("{:.2f}".format(100 * test_accuracy))
